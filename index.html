@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Игра в шашки</title>
+    <style>
+        
+        /* Стили для доски и клеток */
+        .board {
+            display: grid;
+            grid-template-columns: repeat(8, 50px);
+            grid-template-rows: repeat(8, 50px);
+            gap: 0px;
+            background-image: url(pravila.png);
+            background-color: #92ed8a;
+            border: 4px solid #000;
+            
+        }
+        .cell {
+            width: 50px;
+            height: 50px;
+            background-color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+        .black {
+            background-color: #000000;
+        }
+        .piece {
+            width: 80%;
+            height: 80%;
+            border-radius: 50%;
+            position: absolute;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+        }
+        .white-piece {
+            background-color: #fff;
+        }
+        .black-piece {
+            background-color: #666565;
+        }
+    </style>
+</head>
+<body>
+    
+    <h1> Бобров Роман, гр.3092 </h1>
+
+    <div class="board" id="board"></div>
+
+    <details>
+    <summary><span>Что делать если ты не понял правила? 👇</span></summary>
+
+    
+        <p>Если у тебя остались вопросы или ты не до конца разобрался в правилах, то тогды, ты можешь посмотреть этот видеоролик <a href="https://www.youtube.com/watch?v=-jHHFMxA_T8" target="_blank">перейдите по этой ссылке</a></p>
+
+
+    </details>
+    <script>
+        // Создание доски с индексами клеток 
+        const board = document.getElementById('board');
+        let isBlack = false;
+        let cellIndex = 0;
+
+        for (let i = 0; i < 64; i++) {
+            const cell = document.createElement('div');
+            cell.classList.add('cell');
+            cell.dataset.index = cellIndex++;
+            if (isBlack) {
+                cell.classList.add('black');
+            }
+            board.appendChild(cell);
+            isBlack = !isBlack;
+            if ((i + 1) % 8 == 0) {
+                isBlack = !isBlack;
+            }
+        }
+
+        // Функция для размещения шашек на доске по индексу клетки
+        function placePiece(color, cellIndex) {
+            const cell = document.querySelector(`.cell[data-index="${cellIndex}"]`);
+            const piece = document.createElement('div');
+            piece.classList.add('piece', `${color}-piece`);
+            piece.dataset.color = color; // Добавляем атрибут с цветом шашки
+            cell.appendChild(piece);
+        }
+
+        // размещение белых шашек
+        
+        placePiece('white', 1);
+        placePiece('white', 3);
+        placePiece('white', 5);
+        placePiece('white', 7);
+        placePiece('white', 8);
+        placePiece('white', 10);
+        placePiece('white', 12);
+        placePiece('white', 14);
+        placePiece('white', 17);
+        placePiece('white', 19);
+        placePiece('white', 20);
+        placePiece('white', 21);
+        placePiece('white', 23);
+
+        // размещение чёрных шашек 
+        
+        placePiece('black', 40);
+        placePiece('black', 42);
+        placePiece('black', 44);
+        placePiece('black', 46);
+        placePiece('black', 49);
+        placePiece('black', 51);
+        placePiece('black', 53);
+        placePiece('black', 55);
+        placePiece('black', 56);
+        placePiece('black', 58);
+        placePiece('black', 60);
+        placePiece('black', 62);
+
+        // Обработчик события для начала перетаскивания шашки
+        function startDrag(e) {
+            const piece = e.target;
+            if (piece.classList.contains('piece')) {
+                piece.classList.add('dragging');
+                document.addEventListener('mouseup', endDrag);
+            }
+        }
+
+        // Обработчик события для завершения перетаскивания шашки
+        function endDrag(e) {
+            const piece = document.querySelector('.piece.dragging');
+            if (piece) {
+                const cell = e.target.closest('.cell');
+                const currentCell = piece.parentElement;
+                const currentIndex = parseInt(currentCell.dataset.index);
+                const targetIndex = parseInt(cell.dataset.index);
+                const rowDiff = Math.abs(Math.floor(currentIndex / 8) - Math.floor(targetIndex / 8));
+                const colDiff = Math.abs(currentIndex % 8 - targetIndex % 8);
+                if (cell && !cell.querySelector('.piece') && rowDiff === 1 && colDiff === 1) {
+                    const color = piece.dataset.color;
+                    cell.appendChild(piece);
+                    piece.classList.remove('dragging');
+                    piece.style.top = '';
+                    piece.style.left = '';
+                } else if (cell && !cell.querySelector('.piece') && rowDiff === 2 && colDiff === 2) {
+                    const midIndex = (currentIndex + targetIndex) / 2;
+                    const midCell = document.querySelector(`.cell[data-index="${midIndex}"]`);
+                    const midPiece = midCell.querySelector('.piece');
+                    if (midPiece && midPiece.dataset.color !== piece.dataset.color) {
+                        midPiece.remove();
+                        const color = piece.dataset.color;
+                        cell.appendChild(piece);
+                        piece.classList.remove('dragging');
+                        piece.style.top = '';
+                        piece.style.left = '';
+                    }
+                }
+            }
+            document.removeEventListener('mouseup', endDrag);
+        }
+
+        // Добавляем обработчик для начала перетаскивания
+        board.addEventListener('mousedown', startDrag);
+
+        // Отменяем перемещение шашек по вертикали
+        document.querySelectorAll('.piece').forEach(piece => {
+            piece.addEventListener('dragstart', e => e.preventDefault());
+        });
+    </script>
+</body>
+</html>
